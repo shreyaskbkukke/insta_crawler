@@ -1,0 +1,39 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv
+
+# Secrets: never commit real credentials (the template is fine)
+.env
+.env.*
+!.env.example
+
+# App data: collected profile snapshots and generated exports
+data/
+exports/
+
+# Node / Next.js (web/ also has its own .gitignore)
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# Logs
+*.log
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
