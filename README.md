@@ -22,10 +22,60 @@ Tests: `uv run pytest` (they use a fake data source in `tests/fakes.py`, so they
 
 The app uses the official Graph API. **Business Discovery** lets *your* Instagram Business/Creator account read public data from other Business/Creator accounts. Personal accounts can't be reached this way.
 
-1. Convert your Instagram account to Business or Creator and link it to a Facebook Page.
-2. Create a Meta app with Facebook Login. Generate a user or system-user token that has the Instagram permissions Business Discovery needs (`instagram_basic`, plus Page access). Check Meta's current docs, because the required permissions change.
-3. Find your IG user id with `GET /me/accounts?fields=instagram_business_account`.
-4. Set `IG_ACCESS_TOKEN` and `IG_USER_ID` in `.env`.
+### Prerequisites
+
+- An Instagram **Business or Creator** account linked to a Facebook Page.
+- A Meta Developer account: [developers.facebook.com](https://developers.facebook.com)
+
+### Steps to get `IG_ACCESS_TOKEN` and `IG_USER_ID`
+
+1. **Create a Meta app**
+   - Go to [developers.facebook.com/apps](https://developers.facebook.com/apps) and click **Create App**.
+   - Choose **Business** as the use case, then follow the prompts.
+   - Under **Add Products**, add **Instagram Graph API**.
+
+2. **Generate a User Access Token**
+   - Open the **Graph API Explorer**: [developers.facebook.com/tools/explorer](https://developers.facebook.com/tools/explorer/)
+   - Select your app from the top-right dropdown.
+   - Click **Generate Access Token** and grant the required permissions:
+     - `instagram_basic`
+     - `instagram_manage_insights` *(optional, for some metadata)*
+     - `pages_show_list`
+     - `pages_read_engagement`
+   - Copy the token shown — this is a **short-lived** token (valid ~1 hour).
+
+3. **Exchange for a long-lived token** (valid ~60 days)
+
+   ```text
+   GET https://graph.facebook.com/v23.0/oauth/access_token
+     ?grant_type=fb_exchange_token
+     &client_id=<APP_ID>
+     &client_secret=<APP_SECRET>
+     &fb_exchange_token=<SHORT_LIVED_TOKEN>
+   ```
+
+   Your app ID and secret are on [developers.facebook.com/apps](https://developers.facebook.com/apps) → your app → **App settings → Basic**.
+
+4. **Find your IG User ID**
+
+   In the Graph API Explorer, run:
+
+   ```text
+   GET /me/accounts?fields=instagram_business_account
+   ```
+
+   Each page entry has an `instagram_business_account.id` — that is your `IG_USER_ID`.
+
+5. **Set the env vars**
+
+   ```bash
+   cp .env.example .env
+   # then edit .env:
+   IG_ACCESS_TOKEN=<your long-lived token>
+   IG_USER_ID=<your instagram_business_account id>
+   ```
+
+> **Token expiry:** long-lived tokens expire after ~60 days. Refresh them by repeating step 3 before they expire, or set up a System User token in **Meta Business Suite → Business Settings → System Users** for tokens that don't expire.
 
 What the Graph API can and can't return:
 - **Like counts:** blank when the owner hides likes.
